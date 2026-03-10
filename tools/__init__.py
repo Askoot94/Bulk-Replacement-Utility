@@ -1,3 +1,4 @@
-__all__ = ["glossary"]
+__all__ = ["glossary", "application_layout"]
 
 from . import glossary
+from . import application_layout
