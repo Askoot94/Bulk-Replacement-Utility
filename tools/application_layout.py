@@ -164,6 +164,15 @@ class UserInputtingLayer(QGridLayout):
         self.addWidget(self.submit, 1,1)
 
 class TextLayer(QVBoxLayout):
+    @pyqtSlot()
+    def copyToClipboard(self):
+        engine = Tk()
+        engine.withdraw()
+        engine.clipboard_clear()
+        engine.clipboard_append(self.output.toPlainText())
+        engine.update()
+        engine.destroy()
+
     def updateOutputText(self, text:str):
         self.output.updateText(text)
 
@@ -178,6 +187,11 @@ class TextLayer(QVBoxLayout):
 
         self.output = outputText()
         self.addWidget(self.output)
+
+        self.copy = QPushButton()
+        self.copy.setText("Copy to Clipboard")
+        self.copy.clicked.connect(self.copyToClipboard)
+        self.addWidget(self.copy)
 
 class FinalLayout(QVBoxLayout):
     def __init__(self):
