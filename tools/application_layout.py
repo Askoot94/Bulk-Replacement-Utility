@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
     QPlainTextEdit, QFileDialog, QScrollBar,
     QWidget, QGridLayout
 )
-from PyQt6.QtGui import QFocusEvent
+from PyQt6.QtGui import QFocusEvent, QIcon
 
 from .glossary import createGlossary, replaceTerms
 
@@ -137,11 +137,13 @@ class UserInputtingLayer(QGridLayout):
         self.textBox = inputText()
 
         fileGrab = QPushButton()
-        fileGrab.setText("Load File")
+        fileGrab.setIcon(QIcon("./icons/Open.png"))
+        # fileGrab.setText("Load File")
         fileGrab.released.connect(lambda: self.grabFile())
 
         fileSave = QPushButton()
-        fileSave.setText("Save File")
+        fileGrab.setIcon(QIcon.fromTheme("Save"))
+        # fileSave.setText("Save File")
         fileSave.released.connect(lambda: self.saveFile())
         
         self.submit = QPushButton()

@@ -1,0 +1,15 @@
+[Icon Theme]
+name=subcomedy
+Comment=Custom Icon Theme
+
+Directories=768x768,32x32
+
+[768x768]
+Size=768x768
+Type=Scalable
+Context=Actions
+
+[32x32]
+Size=32x32
+Type=Fixed
+Context=Actions
