@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QWidget, QGridLayout
 )
 from PyQt6.QtGui import QFocusEvent
-
+from tkinter import Tk
 from .glossary import createGlossary, replaceTerms
 
 # This is the Qlabel that hold the title text for the application
@@ -129,6 +129,15 @@ class UserInputtingLayer(QGridLayout):
         # with file start saving the glossary terms
         self.glossaryWidget.saveFile(result[0])
 
+    @pyqtSlot()
+    def loadClipboard(self):
+        engine = Tk()
+        engine.withdraw()
+        clipboardText = engine.clipboard_get()
+        engine.update()
+        engine.destroy()
+        self.textBox.setText(clipboardText)
+
     def __init__(self):
         # Consists of Plain Text and Glossary Replacements
         super().__init__()
@@ -146,11 +155,15 @@ class UserInputtingLayer(QGridLayout):
         fileSave.setText("Save File")
         fileSave.released.connect(lambda: self.saveFile())
         
+        clipboardPaste = QPushButton()
+        clipboardPaste.setText("Paste from Clipboard")
+        clipboardPaste.released.connect(lambda: self.loadClipboard())
+
         self.submit = QPushButton()
         self.submit.setText("Start Replacement")
         self.submit.clicked.connect(lambda: self.startReplacement())
 
-        # group Glossary with it's buttons
+        # group Glossary buttons
         glossButtonsLayout = QHBoxLayout()
         glossButtonsLayout.setSpacing(6)
         glossButtonsLayout.addWidget(fileGrab)
@@ -159,13 +172,31 @@ class UserInputtingLayer(QGridLayout):
         fileButtonsWidget = QWidget()
         fileButtonsWidget.setLayout(glossButtonsLayout)
 
+        # group Input buttons
+        inputButtonsLayout = QHBoxLayout()
+        inputButtonsLayout.setSpacing(6)
+        inputButtonsLayout.addWidget(clipboardPaste)
+        inputButtonsLayout.addWidget(self.submit)
+        inputButtonsLayout.setContentsMargins(0,0,0,0)
+        inputButtonsWidget = QWidget()
+        inputButtonsWidget.setLayout(inputButtonsLayout)
+
         # Connect all widgets together in grid
         self.addWidget(self.glossaryWidget, 0,0)
         self.addWidget(fileButtonsWidget, 1,0)
         self.addWidget(self.textBox, 0,1)
-        self.addWidget(self.submit, 1,1)
+        self.addWidget(inputButtonsWidget, 1,1)
 
 class TextLayer(QVBoxLayout):
+    @pyqtSlot()
+    def copyToClipboard(self):
+        engine = Tk()
+        engine.withdraw()
+        engine.clipboard_clear()
+        engine.clipboard_append(self.output.toPlainText())
+        engine.update()
+        engine.destroy()
+
     def updateOutputText(self, text:str):
         self.output.updateText(text)
 
@@ -180,6 +211,11 @@ class TextLayer(QVBoxLayout):
 
         self.output = outputText()
         self.addWidget(self.output)
+
+        self.copy = QPushButton()
+        self.copy.setText("Copy to Clipboard")
+        self.copy.clicked.connect(self.copyToClipboard)
+        self.addWidget(self.copy)
 
 class FinalLayout(QVBoxLayout):
     def __init__(self):
