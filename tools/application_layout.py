@@ -31,6 +31,8 @@ class glossaryInsert(QPlainTextEdit):
             with open(fileLocation, "rt", encoding="UTF-8") as glossaryFile:
                 tempStore = glossaryFile.read()
                 self.setPlainText(tempStore)
+                self.updateGlossary()
+                
         except Exception as error:
             print(error, "\nNeed load file warning Dialog")
 
