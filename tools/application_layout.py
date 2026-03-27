@@ -135,11 +135,8 @@ class UserInputtingLayer(QGridLayout):
 
     @pyqtSlot()
     def loadClipboard(self):
-        engine = Tk()
-        engine.withdraw()
-        clipboardText = engine.clipboard_get()
-        engine.update()
-        engine.destroy()
+        UniEngine.update()
+        clipboardText = UniEngine.clipboard_get()
         self.textBox.setText(clipboardText)
 
     def __init__(self):
@@ -194,12 +191,9 @@ class UserInputtingLayer(QGridLayout):
 class TextLayer(QVBoxLayout):
     @pyqtSlot()
     def copyToClipboard(self):
-        engine = Tk()
-        engine.withdraw()
-        engine.clipboard_clear()
-        engine.clipboard_append(self.output.toPlainText())
-        engine.update()
-        engine.destroy()
+        UniEngine.clipboard_clear()
+        UniEngine.clipboard_append(self.output.toPlainText())
+        UniEngine.update()
 
     def updateOutputText(self, text:str):
         self.output.updateText(text)
