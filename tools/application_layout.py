@@ -9,6 +9,10 @@ from PyQt6.QtGui import QFocusEvent
 from tkinter import Tk
 from .glossary import createGlossary, replaceTerms
 
+# Create one TkEngine for use in all widgets
+UniEngine = Tk()
+UniEngine.withdraw()
+
 # This is the Qlabel that hold the title text for the application
 class title(QLabel):
     def __init__(self):
@@ -131,11 +135,8 @@ class UserInputtingLayer(QGridLayout):
 
     @pyqtSlot()
     def loadClipboard(self):
-        engine = Tk()
-        engine.withdraw()
-        clipboardText = engine.clipboard_get()
-        engine.update()
-        engine.destroy()
+        UniEngine.update()
+        clipboardText = UniEngine.clipboard_get()
         self.textBox.setText(clipboardText)
 
     def __init__(self):
@@ -190,12 +191,9 @@ class UserInputtingLayer(QGridLayout):
 class TextLayer(QVBoxLayout):
     @pyqtSlot()
     def copyToClipboard(self):
-        engine = Tk()
-        engine.withdraw()
-        engine.clipboard_clear()
-        engine.clipboard_append(self.output.toPlainText())
-        engine.update()
-        engine.destroy()
+        UniEngine.clipboard_clear()
+        UniEngine.clipboard_append(self.output.toPlainText())
+        UniEngine.update()
 
     def updateOutputText(self, text:str):
         self.output.updateText(text)
