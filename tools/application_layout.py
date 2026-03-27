@@ -9,6 +9,10 @@ from PyQt6.QtGui import QFocusEvent
 from tkinter import Tk
 from .glossary import createGlossary, replaceTerms
 
+# Create one TkEngine for use in all widgets
+UniEngine = Tk()
+UniEngine.withdraw()
+
 # This is the Qlabel that hold the title text for the application
 class title(QLabel):
     def __init__(self):
