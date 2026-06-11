@@ -1,11 +1,11 @@
-from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot, QUrl
 from PyQt6.QtWidgets import (
     QMainWindow, QLabel, QTextEdit, 
     QHBoxLayout, QVBoxLayout, QPushButton,
     QPlainTextEdit, QFileDialog, QScrollBar,
     QWidget, QGridLayout
 )
-from PyQt6.QtGui import QFocusEvent
+from PyQt6.QtGui import QDragEnterEvent, QDropEvent, QFocusEvent
 from tkinter import Tk, TclError
 from .glossary import createGlossary, replaceTerms
 
@@ -59,6 +59,31 @@ class glossaryInsert(QPlainTextEdit):
 
         return super().focusOutEvent(e)
 
+    def dragEnterEvent(self, e: QDragEnterEvent | None) -> None:
+        # Check that Drag data is Mime format and contains a URL/Link/File Path.
+        try:    
+            if(e.mimeData().hasUrls() == True):
+                e.accept()
+        except Exception as exc:
+            print(exc)
+        
+        return super().dragEnterEvent(e)
+
+    def dropEvent(self, e: QDropEvent | None) -> None:
+        # Define what we utilize the MimeData from our drag for.
+        try:
+            filePath= e.mimeData().urls()   # List format
+
+            # Need to implement check if users is okay with replacing current text
+
+
+            # Use last Item in list as filepath to parse
+            self.loadFile(filePath.pop().toLocalFile())
+
+        except Exception as exc:
+            print(exc)
+            return super().dropEvent(e)
+
     def updateGlossary(self):
         plainText = self.toPlainText()
 
@@ -71,6 +96,8 @@ class glossaryInsert(QPlainTextEdit):
 
     def __init__(self):
         super().__init__()
+
+        self.setAcceptDrops(True)
 
         self.setBaseSize(360, 400)
         self.setMaximumHeight(800)
