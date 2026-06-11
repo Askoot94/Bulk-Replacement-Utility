@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QWidget, QGridLayout
 )
 from PyQt6.QtGui import QFocusEvent
-from tkinter import Tk
+from tkinter import Tk, TclError
 from .glossary import createGlossary, replaceTerms
 
 # Create one TkEngine for use in all widgets
@@ -136,8 +136,11 @@ class UserInputtingLayer(QGridLayout):
     @pyqtSlot()
     def loadClipboard(self):
         UniEngine.update()
-        clipboardText = UniEngine.clipboard_get()
-        self.textBox.setText(clipboardText)
+        try:
+            clipboardText = UniEngine.clipboard_get()
+            self.textBox.setText(clipboardText)
+        except TclError:
+            return
 
     def __init__(self):
         # Consists of Plain Text and Glossary Replacements
