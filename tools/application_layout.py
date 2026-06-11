@@ -29,6 +29,11 @@ class title(QLabel):
 
 class glossaryInsert(QPlainTextEdit):
     glossary = []
+    changed= False
+
+    @pyqtSlot()
+    def flagChange(self):
+        self.changed = True
 
     def loadFile(self, fileLocation: str):
         try:
@@ -48,9 +53,10 @@ class glossaryInsert(QPlainTextEdit):
         except Exception as error:
             print(error, "\nNeed save file warning Dialog")
 
-
     def focusOutEvent(self, e: QFocusEvent | None) -> None:
-        self.updateGlossary()
+        if(self.changed==True):
+            self.updateGlossary()
+
         return super().focusOutEvent(e)
 
     def updateGlossary(self):
@@ -59,6 +65,9 @@ class glossaryInsert(QPlainTextEdit):
         # Need to implment faster iteration that checks if term already exists in list before adding.
         self.glossary.clear()
         self.glossary = createGlossary(plainText)
+
+        # Update Changed Flag to say no change has happened.
+        self.changed = False
 
     def __init__(self):
         super().__init__()
@@ -72,6 +81,8 @@ class glossaryInsert(QPlainTextEdit):
         
         self.setPlaceholderText("Insert glossary replacement terms here.\n" 
         "Format: {Find}={Replace} i.e Hello=World")
+
+        self.textChanged.connect(lambda: self.flagChange())
 
         self.addScrollBarWidget(QScrollBar(), Qt.AlignmentFlag(0x0002))
 
