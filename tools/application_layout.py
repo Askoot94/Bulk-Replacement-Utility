@@ -138,7 +138,7 @@ class outputText(QTextEdit):
         self.addScrollBarWidget(QScrollBar(), Qt.AlignmentFlag(0x0002))
 
         formatting = self.font()
-        formatting.setPointSize(18)
+        formatting.setPointSize(12)
         self.setFont(formatting)
 
         self.setMinimumHeight(200)
