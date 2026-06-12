@@ -1,12 +1,12 @@
-from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot, QUrl
 from PyQt6.QtWidgets import (
     QMainWindow, QLabel, QTextEdit, 
     QHBoxLayout, QVBoxLayout, QPushButton,
     QPlainTextEdit, QFileDialog, QScrollBar,
     QWidget, QGridLayout
 )
-from PyQt6.QtGui import QFocusEvent
-from tkinter import Tk
+from PyQt6.QtGui import QDragEnterEvent, QDropEvent, QFocusEvent
+from tkinter import Tk, TclError
 from .glossary import createGlossary, replaceTerms
 
 # Create one TkEngine for use in all widgets
@@ -29,6 +29,11 @@ class title(QLabel):
 
 class glossaryInsert(QPlainTextEdit):
     glossary = []
+    changed= False
+
+    @pyqtSlot()
+    def flagChange(self):
+        self.changed = True
 
     def loadFile(self, fileLocation: str):
         try:
@@ -48,10 +53,36 @@ class glossaryInsert(QPlainTextEdit):
         except Exception as error:
             print(error, "\nNeed save file warning Dialog")
 
-
     def focusOutEvent(self, e: QFocusEvent | None) -> None:
-        self.updateGlossary()
+        if(self.changed==True):
+            self.updateGlossary()
+
         return super().focusOutEvent(e)
+
+    def dragEnterEvent(self, e: QDragEnterEvent | None) -> None:
+        # Check that Drag data is Mime format and contains a URL/Link/File Path.
+        try:    
+            if(e.mimeData().hasUrls() == True):
+                e.accept()
+        except Exception as exc:
+            print(exc)
+        
+        return super().dragEnterEvent(e)
+
+    def dropEvent(self, e: QDropEvent | None) -> None:
+        # Define what we utilize the MimeData from our drag for.
+        try:
+            filePath= e.mimeData().urls()   # List format
+
+            # Need to implement check if users is okay with replacing current text
+
+
+            # Use last Item in list as filepath to parse
+            self.loadFile(filePath.pop().toLocalFile())
+
+        except Exception as exc:
+            print(exc)
+            return super().dropEvent(e)
 
     def updateGlossary(self):
         plainText = self.toPlainText()
@@ -60,8 +91,13 @@ class glossaryInsert(QPlainTextEdit):
         self.glossary.clear()
         self.glossary = createGlossary(plainText)
 
+        # Update Changed Flag to say no change has happened.
+        self.changed = False
+
     def __init__(self):
         super().__init__()
+
+        self.setAcceptDrops(True)
 
         self.setBaseSize(360, 400)
         self.setMaximumHeight(800)
@@ -72,6 +108,8 @@ class glossaryInsert(QPlainTextEdit):
         
         self.setPlaceholderText("Insert glossary replacement terms here.\n" 
         "Format: {Find}={Replace} i.e Hello=World")
+
+        self.textChanged.connect(lambda: self.flagChange())
 
         self.addScrollBarWidget(QScrollBar(), Qt.AlignmentFlag(0x0002))
 
@@ -100,7 +138,7 @@ class outputText(QTextEdit):
         self.addScrollBarWidget(QScrollBar(), Qt.AlignmentFlag(0x0002))
 
         formatting = self.font()
-        formatting.setPointSize(18)
+        formatting.setPointSize(12)
         self.setFont(formatting)
 
         self.setMinimumHeight(200)
@@ -136,8 +174,11 @@ class UserInputtingLayer(QGridLayout):
     @pyqtSlot()
     def loadClipboard(self):
         UniEngine.update()
-        clipboardText = UniEngine.clipboard_get()
-        self.textBox.setText(clipboardText)
+        try:
+            clipboardText = UniEngine.clipboard_get()
+            self.textBox.setText(clipboardText)
+        except TclError:
+            return
 
     def __init__(self):
         # Consists of Plain Text and Glossary Replacements

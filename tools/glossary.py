@@ -19,7 +19,7 @@ def createGlossary(givenText:str):
                     if tmp != None:
                         terms.append(tmp)
 
-        except FileNotFoundError as e:
+        except Exception as e:
             e.add_note("Requested file was not found.")
     else:
         for line in givenText.splitlines():
@@ -27,8 +27,13 @@ def createGlossary(givenText:str):
             if tmp != None:
                 terms.append(tmp)
 
+    # Sort the Terms in list descending by size key.
+    terms.sort(key=getTermSize, reverse=True)
+
     return terms
 
+def getTermSize(term:dict):
+    return term['size']
         
 # Gets a Dictionary from a single Line
 def getEntry(Line:str):
@@ -45,7 +50,7 @@ def getEntry(Line:str):
             end = Line.__len__()
 
         # Identify and Store character(s) to remove and insert
-        split = dict(find =Line[:delim], replace =Line[delim+1:end])
+        split = dict(find =Line[:delim], replace =Line[delim+1:end], size=delim)
         
         # add the new dictionary to list
         return split
